@@ -1,0 +1,59 @@
+
+name: Build and Release Package
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Checkout, Zip and Release
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # 1. Checkout the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Create ZIP package
+      - name: Create ZIP Package
+        run: |
+          echo "Creating ZIP package..."
+
+          zip -r my-app.zip . \
+            -x ".git/*" \
+            -x ".github/*"
+
+          echo "Package created:"
+          ls -lh my-app.zip
+
+      # 3. Generate release tag
+      - name: Generate Release Tag
+        id: release
+        run: |
+          VERSION="v1.0.${{ github.run_number }}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      # 4. Create GitHub Release
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release.outputs.version }}
+          name: Release ${{ steps.release.outputs.version }}
+          body: |
+            ## Release ${{ steps.release.outputs.version }}
+
+            Automated release created by GitHub Actions.
+
+            Commit:
+            ${{ github.sha }}
+
+            Branch:
+            ${{ github.ref_name }}
+          files: |
+            my-app.zip
