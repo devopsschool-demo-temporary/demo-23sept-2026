@@ -1,4 +1,3 @@
-
 name: Build and Release Package
 
 on:
@@ -12,7 +11,7 @@ permissions:
 jobs:
   release:
     name: Checkout, Zip and Release
-    runs-on: ubuntu-latest
+    runs-on: node1
 
     steps:
 
